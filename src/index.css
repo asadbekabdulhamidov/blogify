@@ -1,1 +1,4 @@
-@import 'tailwindcss';
+@import "tailwindcss";
+body {
+  @apply bg-slate-50 font-sans text-slate-900;
+}
