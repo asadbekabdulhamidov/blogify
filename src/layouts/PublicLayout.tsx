@@ -5,7 +5,7 @@ import Navbar from "../components/layout/Navbar";
 const PublicLayout: React.FC = () => {
   return (
     <>
-      <header>
+      <header className="">
         <Navbar />
       </header>
       <main>

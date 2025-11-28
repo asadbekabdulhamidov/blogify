@@ -1,11 +1,21 @@
 @import "tailwindcss";
 
+@theme inline {
+  --color-primary-500: #6366f1;
+  --color-primary-600: #4f46e5;
+  --color-primary-700: #4338ca;
+  --color-link-100: #0f1729;
+  --color-text-secondary: #6b7280;
+
+  --font-inter: "Inter", "system-ui", "sans-serif";
+}
+
 body {
   @apply bg-slate-50 font-sans text-slate-900;
 }
 
 @layer components {
   .align-center {
-    @apply mx-auto w-full max-w-[1236px] px-2.5;
+    @apply mx-auto w-full max-w-[1256px] px-5;
   }
 }

@@ -35,7 +35,7 @@ const Button: React.FC<ButtonProps> = ({
   return (
     <button
       className={clsx(
-        "rounded-md font-medium transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-60",
+        "cursor-pointer rounded-md font-medium transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-60",
         variantClasses[variant],
         sizeClasses[size],
         className,
