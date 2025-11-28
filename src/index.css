@@ -1,4 +1,11 @@
 @import "tailwindcss";
+
 body {
   @apply bg-slate-50 font-sans text-slate-900;
+}
+
+@layer components {
+  .align-center {
+    @apply mx-auto w-full max-w-[1236px] px-2.5;
+  }
 }
