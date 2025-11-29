@@ -46,7 +46,7 @@ const Navbar: React.FC = () => {
           >
             Posts
           </Link>
-          <Link to={"/admin"}>
+          <Link to={"/auth"}>
             <Button variant="primary" size="lg">
               Login
             </Button>
