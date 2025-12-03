@@ -14,6 +14,9 @@ import AdminEditPostPage from "../pages/admin/AdminEditPostPage";
 import AdminLayout from "../layouts/AdminLayout";
 import PublicLayout from "../layouts/PublicLayout";
 
+//protected
+import ProtectedAdminRoute from "../components/ProtectedAdminRoute";
+
 const routes = createBrowserRouter([
   {
     path: "/",
@@ -38,14 +41,16 @@ const routes = createBrowserRouter([
 
   {
     path: "/admin",
-    element: <AdminLayout />,
+    element: <ProtectedAdminRoute />, // faqat tekshiradi
     children: [
       {
-        index: true,
-        element: <AdminDashboardPage />,
+        element: <AdminLayout />, // layout
+        children: [
+          { index: true, element: <AdminDashboardPage /> },
+          { path: "create-post", element: <AdminCreatePostPage /> },
+          { path: "edit-post/:id", element: <AdminEditPostPage /> },
+        ],
       },
-      { path: "create-post", element: <AdminCreatePostPage /> },
-      { path: "edit-post/:id", element: <AdminEditPostPage /> },
     ],
   },
 ]);
