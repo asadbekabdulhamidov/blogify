@@ -5,8 +5,29 @@ import LogoImg from "../../assets/svg/logo.svg";
 import { CgArrowLeft } from "react-icons/cg";
 
 import { useForm, SubmitHandler } from "react-hook-form";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Button from "../../components/ui/Button";
+import * as yup from "yup";
+import { yupResolver } from "@hookform/resolvers/yup";
+
+// components
+import Input from "../../components/ui/Input";
+
+//firebase
+import { signInWithEmailAndPassword, signOut } from "firebase/auth";
+import { collection, query, where, getDocs } from "firebase/firestore";
+import { auth, db } from "../../lib/firebase/firebase.config";
+
+//toast
+import { Toaster, toast } from "sonner";
+
+const schema = yup.object({
+  email: yup.string().email("Invalid email").required("Emial is required"),
+  password: yup
+    .string()
+    .min(6, "min 6 characters")
+    .required("Password is required"),
+});
 
 type LoginFormInputs = {
   email: string;
@@ -14,19 +35,58 @@ type LoginFormInputs = {
 };
 
 const LoginPage: React.FC = () => {
+  const navigate = useNavigate();
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting },
-  } = useForm<LoginFormInputs>();
+    formState: { errors },
+  } = useForm<LoginFormInputs>({ resolver: yupResolver(schema) });
 
-  const onSubmit: SubmitHandler<LoginFormInputs> = (data) => {
+  const onSubmit: SubmitHandler<LoginFormInputs> = async (data) => {
     console.log("Submitted:", data);
+
+    try {
+      const cred = await signInWithEmailAndPassword(
+        auth,
+        data.email,
+        data.password,
+
+        //firestoredan  admin malumotlarini olish
+      );
+      console.log("login success", cred.user);
+
+      const usersRef = collection(db, "users");
+      const q = query(usersRef, where("email", "==", data.email));
+      const snap = await getDocs(q);
+
+      if (snap.empty) {
+        // users collection ichida bu email yo‘q
+        await signOut(auth);
+        toast.error("User ma'lumotlari topilmadi!");
+        return;
+      }
+
+      const userData = snap.docs[0].data();
+
+      if (userData.role === "admin") {
+        toast.success("Admin sifatida tizimga kirdingiz!");
+        navigate("/admin");
+      } else {
+        await signOut(auth);
+        toast.error("Faqat adminlar kirishi mumkin!");
+      }
+
+      console.log(userData);
+    } catch (error: any) {
+      console.log(error);
+      toast.error(error.message);
+    }
   };
 
   return (
     <div className="lg:flex">
       <div className="flex justify-center px-5 pt-13 lg:w-[50%] lg:px-0">
+        <Toaster position="top-right" richColors closeButton />
         <div className="max-w-md">
           <img src={LogoImg} alt="site logo" />
           <Link
@@ -46,28 +106,23 @@ const LoginPage: React.FC = () => {
             <p className="text-text-secondary mb-6">
               Enter your credentials to access your account
             </p>
-            <label className="mb-4 block">
-              <p className="mb-3 text-[14px] font-medium">Email</p>
-              <input
-                className="w-full rounded-md border p-[13px] outline-none autofill:bg-white"
-                {...register("email", {
-                  required: "Email is required",
-                })}
-                type="email"
-                placeholder="name@example.com"
-              />
-            </label>
-            <label className="mb-4 block">
-              <p className="mb-3 text-[14px] font-medium">Password</p>
-              <input
-                className="w-full rounded-md border p-[13px] outline-none autofill:bg-white"
-                {...register("password", {
-                  required: "password is required",
-                })}
-                type="password"
-                placeholder="*********"
-              />
-            </label>
+            <Input
+              type="email"
+              placeholder="name@gmail.com"
+              label="Email"
+              name="email"
+              error={errors.email}
+              register={register}
+            />
+            <Input
+              type="password"
+              placeholder="*******"
+              label="Password"
+              name="password"
+              error={errors.password}
+              register={register}
+            />
+
             <Button className="w-full" variant="primary" size="lg">
               Login
             </Button>
